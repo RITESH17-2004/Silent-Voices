@@ -1,0 +1,32 @@
+name: silent_voices
+description: A mobile app for inclusive two-way communication between hearing and deaf individuals.
+
+environment:
+  sdk: '^3.8.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  google_fonts: ^6.1.0
+  lottie: ^2.7.0
+  speech_to_text: ^6.6.0
+
+flutter:
+  assets:
+    - assets/animations/sign_avatar.json
+    - assets/icons/user.png
+    - assets/icons/email.png
+    - assets/icons/lock.png
+    - assets/animations/hello.json
+    - assets/illustrations/home_illustration.png
+    - assets/icons/instagram.png
+    - assets/illustrations/signs.png
+    - assets/icons/google.png
+    - assets/icons/apple.png
+    - assets/icons/facebook.png
+    - assets/icons/eyec.png
+    - assets/icons/eyeo.png
+    
+  
+    
