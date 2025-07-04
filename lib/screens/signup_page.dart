@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/gestures.dart';
 import '../widgets/password_field.dart';
+import 'forget_password_page.dart';
 
 class SignUpPage extends StatefulWidget {
   final VoidCallback onSignInTap;
@@ -146,13 +147,26 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                           Text('Remember Me', style: GoogleFonts.poppins(color: Colors.white)),
                           Spacer(),
-                          GestureDetector(
-                            onTap: () {},
-                            child: Text(
-                              'Forgot Password?',
-                              style: GoogleFonts.poppins(
-                                color: Color(0xFFA6CCE3),
-                                decoration: TextDecoration.underline,
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(4),
+                              splashColor: Color(0x334FC3F7),
+                              highlightColor: Color(0x224FC3F7),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (context) => const ForgetPasswordPage()),
+                                );
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                                child: Text(
+                                  'Forgot Password?',
+                                  style: GoogleFonts.poppins(
+                                    color: Color(0xFFA6CCE3),
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
                               ),
                             ),
                           ),

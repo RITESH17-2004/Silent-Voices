@@ -66,7 +66,16 @@ class _SilentVoicesAppState extends State<SilentVoicesApp> {
       home: _authenticated
           ? const HomePage()
           : _showLanding
-              ? LandingPage(onGetStarted: _onGetStarted)
+              ? LandingPage(
+                  onSignIn: () => setState(() {
+                    _showLanding = false;
+                    _showLogin = true;
+                  }),
+                  onSignUp: () => setState(() {
+                    _showLanding = false;
+                    _showLogin = false;
+                  }),
+                )
               : _showLogin
                   ? LoginPage(
                       onSignupTap: _switchToSignup,

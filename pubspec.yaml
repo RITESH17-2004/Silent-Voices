@@ -11,6 +11,7 @@ dependencies:
   google_fonts: ^6.1.0
   lottie: ^2.7.0
   speech_to_text: ^6.6.0
+  file_picker: ^6.1.1
 
 flutter:
   assets:
@@ -27,6 +28,28 @@ flutter:
     - assets/icons/facebook.png
     - assets/icons/eyec.png
     - assets/icons/eyeo.png
+    - assets/icons/arrow.png
+    - assets/illustrations/man.png
+    - assets/illustrations/sign to speech.png
+    - assets/illustrations/speech to sign.png
+    - assets/icons/home.png
+    - assets/icons/settings.png
+    - assets/icons/profile.png
+    - assets/icons/animation_speed.png
+    - assets/icons/feedback.png
+    - assets/icons/language_type.png
+    - assets/icons/language.png
+    - assets/icons/voice_type.png
+    - assets/icons/dropdown_arrow.png
+    - assets/illustrations/logo1.png
+    - assets/icons/logo.png
+    - assets/animations/globe.json
+    - assets/background/bg.png
+    - assets/icons/cam.png
+    - assets/icons/message.png
+    - assets/icons/headphone.png
+    - assets/icons/camera.png
+    - assets/icons/mike.png
     
   
     

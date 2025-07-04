@@ -1,175 +1,155 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-class SpeechToSignPage extends StatefulWidget {
-  const SpeechToSignPage({super.key});
-
-  @override
-  State<SpeechToSignPage> createState() => _SpeechToSignPageState();
-}
-
-class _SpeechToSignPageState extends State<SpeechToSignPage> {
-  late stt.SpeechToText _speech;
-  bool _isListening = false;
-  String recognizedText = '';
-  String _selectedLocaleId = 'en-US'; // default
-
-  final List<Map<String, String>> _languages = [
-    {'name': 'English', 'locale': 'en-US'},
-    {'name': 'Hindi', 'locale': 'hi-IN'},
-    {'name': 'Marathi', 'locale': 'mr-IN'},
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _speech = stt.SpeechToText();
-  }
-
-  void _listen() async {
-    if (!_isListening) {
-      bool available = await _speech.initialize(
-        onStatus: (val) => setState(() {
-          if (val == 'done') _isListening = false;
-        }),
-        onError: (val) => setState(() => _isListening = false),
-      );
-      if (available) {
-        setState(() => _isListening = true);
-        _speech.listen(
-          onResult: (val) => setState(() {
-            recognizedText = val.recognizedWords;
-          }),
-          localeId: _selectedLocaleId, // Use selected language
-        );
-      }
-    } else {
-      setState(() => _isListening = false);
-      _speech.stop();
-    }
-  }
+class SpeechToSignPage extends StatelessWidget {
+  const SpeechToSignPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final containerWidth = screenWidth * 0.85;
+    final avatarSize = screenWidth * 0.3;
+    final buttonPadding = EdgeInsets.symmetric(horizontal: screenWidth * 0.08, vertical: 18);
     return Scaffold(
-      backgroundColor: const Color(0xFFBDB3A3),
-      appBar: AppBar(
-        title: const Text('Speech to Sign'),
-        backgroundColor: const Color(0xFF607EA2),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Language dropdown
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: DropdownButtonFormField<String>(
-                value: _selectedLocaleId,
-                decoration: InputDecoration(
-                  labelText: 'Choose Language',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-                items: _languages.map((lang) {
-                  return DropdownMenuItem<String>(
-                    value: lang['locale'],
-                    child: Text(lang['name']!),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedLocaleId = value!;
-                  });
-                },
-              ),
+      body: Stack(
+        children: [
+          // Full background image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/background/bg.png',
+              fit: BoxFit.cover,
             ),
-            // 1. Say your words
-            _SpeechToSignBox(
-              title: 'Say your words',
-              child: IconButton(
-                icon: Icon(
-                  _isListening ? Icons.mic : Icons.mic_none,
-                  size: 36,
-                  color: Color(0xFF607EA2),
-                ),
-                onPressed: _listen,
-                tooltip: _isListening ? 'Stop Listening' : 'Start Listening',
-              ),
-            ),
-            const SizedBox(height: 28),
-            // 2. Converted text
-            _SpeechToSignBox(
-              title: 'Converted text',
-              child: Text(
-                recognizedText.isEmpty ? 'Waiting for input...' : recognizedText,
-                style: TextStyle(
-                  color: Color(0xFF314B6E),
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 28),
-            // 3. Sign language display
-            _SpeechToSignBox(
-              title: 'Sign language display',
+          ),
+          // Globe animation in top-right
+          Positioned(
+            top: 32,
+            right: 20,
+            child: SizedBox(
+              width: 48,
+              height: 48,
               child: Lottie.asset(
-                'assets/animations/sign_avatar.json',
-                height: 90,
-                repeat: true,
+                'assets/animations/globe.json',
                 fit: BoxFit.contain,
               ),
             ),
-          ],
-        ),
+          ),
+          // Main content
+          Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Mic button
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF108EC2),
+                      foregroundColor: Colors.white,
+                      padding: buttonPadding,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                    icon: Image.asset('assets/icons/mike.png', width: 28, height: 28),
+                    label: const Text('Tap the mic and speak'),
+                    onPressed: () {},
+                  ),
+                  const SizedBox(height: 32),
+                  // Message Box
+                  Container(
+                    width: containerWidth,
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Colors.white24, width: 1.5),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Image.asset('assets/icons/message.png', width: 22, height: 22, color: Colors.white),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'MESSAGE BOX',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.10),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Text(
+                            'YOUR MESSAGE WILL APPEAR HERE.',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.1,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  // 3D Avatar
+                  Container(
+                    width: avatarSize,
+                    height: avatarSize,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Color(0xFF108EC2), width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xFF108EC2).withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: CircleAvatar(
+                      radius: avatarSize * 0.42,
+                      backgroundColor: Colors.white,
+                      child: const Icon(Icons.person, size: 60, color: Color(0xFF108EC2)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    '3D Avatar',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
-class _SpeechToSignBox extends StatelessWidget {
-  final String title;
-  final Widget child;
-  const _SpeechToSignBox({required this.title, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xFF607EA2),
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.1,
-            ),
-          ),
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
-    );
-  }
-} 
