@@ -7,6 +7,8 @@ import 'info_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:silent_voices/screens/profile_page.dart';
 import 'settings_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -16,10 +18,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  final AuthService _authService = AuthService();
   int _selectedIndex = 0;
   int? _hoveredButton; // For web/desktop hover
   int? _hoveredNav; // For web/desktop hover
   late AnimationController _glowController;
+  String _userName = '';
 
   @override
   void initState() {
@@ -28,6 +32,26 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    try {
+      final currentUser = _authService.currentUser;
+      if (currentUser != null) {
+        final userData = await _authService.getUserData(currentUser.uid);
+        if (userData != null) {
+          setState(() {
+            _userName = userData['name'] ?? 'User';
+          });
+        }
+      }
+    } catch (e) {
+      // If there's an error, use default greeting
+      setState(() {
+        _userName = 'User';
+      });
+    }
   }
 
   @override
@@ -233,7 +257,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'Hello! 👋',
+                                    'Hello, ${_userName.isNotEmpty ? _userName.split(' ').first : 'User'}! 👋',
                                     style: TextStyle(
                                       fontFamily: 'Poppins',
                                       fontWeight: FontWeight.bold,

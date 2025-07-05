@@ -6,7 +6,14 @@ import 'forget_password_page.dart';
 
 class SignUpPage extends StatefulWidget {
   final VoidCallback onSignInTap;
-  const SignUpPage({super.key, required this.onSignInTap});
+  final Future<void> Function(String name, String email, String password)? onSignup;
+  final String? errorMessage;
+  const SignUpPage({
+    super.key, 
+    required this.onSignInTap,
+    this.onSignup,
+    this.errorMessage,
+  });
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
@@ -19,6 +26,7 @@ class _SignUpPageState extends State<SignUpPage> {
   String password = '';
   bool rememberMe = false;
   bool emailValid = false;
+  bool _isLoading = false;
   final TextEditingController _passwordController = TextEditingController();
 
   @override
@@ -172,14 +180,45 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         ],
                       ),
+                      // Error message display
+                      if (widget.errorMessage != null) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.red.withOpacity(0.3)),
+                          ),
+                          child: Text(
+                            widget.errorMessage!,
+                            style: GoogleFonts.poppins(
+                              color: Colors.red[300],
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 18),
                       SizedBox(
                         width: double.infinity,
                         child: _ModernGradientButton(
-                          text: 'Register',
-                          onPressed: () {
+                          text: _isLoading ? 'Creating Account...' : 'Register',
+                          onPressed: _isLoading || widget.onSignup == null ? () {} : () async {
                             if (_formKey.currentState!.validate()) {
-                              // Handle registration
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              try {
+                                await widget.onSignup!(name, email, password);
+                              } finally {
+                                if (mounted) {
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                }
+                              }
                             }
                           },
                         ),

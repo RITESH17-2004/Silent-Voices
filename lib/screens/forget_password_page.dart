@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:silent_voices/services/auth_service.dart';
 
 class ForgetPasswordPage extends StatefulWidget {
   const ForgetPasswordPage({super.key});
@@ -10,8 +11,11 @@ class ForgetPasswordPage extends StatefulWidget {
 
 class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
   final _formKey = GlobalKey<FormState>();
+  final AuthService _authService = AuthService();
   String email = '';
   bool submitted = false;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -141,6 +145,26 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                         },
                         onChanged: (v) => setState(() => email = v),
                       ),
+                      // Error message display
+                      if (_errorMessage != null) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.red.withOpacity(0.3)),
+                          ),
+                          child: Text(
+                            _errorMessage!,
+                            style: GoogleFonts.poppins(
+                              color: Colors.red[300],
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 28),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -151,20 +175,60 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        onPressed: () {
+                        onPressed: _isLoading ? null : () async {
                           if (_formKey.currentState!.validate()) {
-                            setState(() => submitted = true);
-                            // Here you would trigger the password reset logic
+                            setState(() {
+                              _isLoading = true;
+                              _errorMessage = null;
+                              submitted = false;
+                            });
+                            
+                            try {
+                              await _authService.resetPassword(email);
+                              setState(() {
+                                submitted = true;
+                              });
+                            } catch (e) {
+                              setState(() {
+                                _errorMessage = e.toString();
+                              });
+                            } finally {
+                              if (mounted) {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
+                            }
                           }
                         },
-                        child: Text('Send Reset Link', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16)),
+                        child: _isLoading 
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text('Send Reset Link', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16)),
                       ),
                       if (submitted) ...[
                         const SizedBox(height: 18),
-                        Text(
-                          'If this email is registered, you will receive a password reset link.',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(color: Color(0xFF4FC3F7)),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF4FC3F7).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFF4FC3F7).withOpacity(0.3)),
+                          ),
+                          child: Text(
+                            'If this email is registered, you will receive a password reset link.',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: const Color(0xFF4FC3F7),
+                              fontSize: 14,
+                            ),
+                          ),
                         ),
                       ],
                       const SizedBox(height: 32),

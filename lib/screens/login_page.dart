@@ -6,8 +6,14 @@ import 'forget_password_page.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback onSignupTap;
-  final void Function(String email, String password) onLogin;
-  const LoginPage({super.key, required this.onSignupTap, required this.onLogin});
+  final Future<void> Function(String email, String password) onLogin;
+  final String? errorMessage;
+  const LoginPage({
+    super.key, 
+    required this.onSignupTap, 
+    required this.onLogin,
+    this.errorMessage,
+  });
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -17,8 +23,8 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   String email = '';
   String password = '';
-  String? error;
   bool rememberMe = false;
+  bool _isLoading = false;
   final TextEditingController _passwordController = TextEditingController();
 
   @override
@@ -186,18 +192,45 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                       const SizedBox(height: 18),
-                      if (error != null) ...[
-                        const SizedBox(height: 12),
-                        Text(error!, style: const TextStyle(color: Colors.red)),
+                      // Error message display
+                      if (widget.errorMessage != null) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.red.withOpacity(0.3)),
+                          ),
+                          child: Text(
+                            widget.errorMessage!,
+                            style: GoogleFonts.poppins(
+                              color: Colors.red[300],
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ],
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         child: _ModernGradientButton(
-                          text: 'Login',
-                          onPressed: () {
+                          text: _isLoading ? 'Logging in...' : 'Login',
+                          onPressed: _isLoading ? () {} : () async {
                             if (_formKey.currentState!.validate()) {
-                              widget.onLogin(email, password);
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              try {
+                                await widget.onLogin(email, password);
+                              } finally {
+                                if (mounted) {
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                }
+                              }
                             }
                           },
                         ),

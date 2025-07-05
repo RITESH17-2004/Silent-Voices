@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:silent_voices/screens/profile_page.dart';
+import 'package:silent_voices/services/auth_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -10,6 +11,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final AuthService _authService = AuthService();
   // State variables
   String theme = 'Dark';
   String language = 'English';
@@ -104,32 +106,6 @@ class _SettingsPageState extends State<SettingsPage> {
             labelStart: 'Slow',
             labelEnd: 'Fast',
             onChanged: (val) => setState(() => animSpeed = val),
-          ),
-          const SizedBox(height: 18),
-          Divider(color: const Color(0xFF2A2D3C)),
-          const SizedBox(height: 18),
-          // Accessibility
-          _sectionTitle('Accessibility'),
-          const SizedBox(height: 10),
-          _switchTile(
-            icon: Icons.contrast,
-            title: 'High Contrast Mode',
-            value: highContrast,
-            onChanged: (val) => setState(() => highContrast = val),
-          ),
-          const SizedBox(height: 10),
-          _switchTile(
-            icon: Icons.vibration,
-            title: 'Vibration Feedback',
-            value: vibration,
-            onChanged: (val) => setState(() => vibration = val),
-          ),
-          const SizedBox(height: 10),
-          _switchTile(
-            icon: Icons.accessibility,
-            title: 'Enable Screen Reader Support',
-            value: screenReader,
-            onChanged: (val) => setState(() => screenReader = val),
           ),
           const SizedBox(height: 18),
           Divider(color: const Color(0xFF2A2D3C)),
@@ -343,7 +319,70 @@ class _SettingsPageState extends State<SettingsPage> {
           borderRadius: BorderRadius.circular(14),
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
-            onTap: () {},
+            onTap: () async {
+              // Show confirmation dialog
+              bool? shouldLogout = await showDialog<bool>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    backgroundColor: const Color(0xFF1A1D2E),
+                    title: Text(
+                      'Logout',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    content: Text(
+                      'Are you sure you want to logout?',
+                      style: GoogleFonts.poppins(
+                        color: const Color(0xFFB0B3C5),
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text(
+                          'Cancel',
+                          style: GoogleFonts.poppins(
+                            color: const Color(0xFF4FC3F7),
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: Text(
+                          'Logout',
+                          style: GoogleFonts.poppins(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (shouldLogout == true) {
+                try {
+                  await _authService.signOut();
+                  // The StreamBuilder in main.dart will automatically redirect to login
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Error logging out: $e',
+                          style: GoogleFonts.poppins(),
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              }
+            },
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Row(

@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 // import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_service.dart';
+import '../models/user_model.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  final String name;
-  final String email;
-  const EditProfileScreen({super.key, this.name = 'Melissa Peters', this.email = 'melpeters@gmail.com'});
+  const EditProfileScreen({super.key});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -14,6 +15,7 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
+  final AuthService _authService = AuthService();
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _dobController;
@@ -23,17 +25,54 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _addressController;
   bool _personalDetailsExpanded = false;
   Uint8List? _imageBytes;
+  bool _isLoading = true;
+  String? _errorMessage;
+  UserModel? _currentUser;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.name);
-    _emailController = TextEditingController(text: widget.email);
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
     _dobController = TextEditingController(text: '23/05/1995');
-    _usernameController = TextEditingController(text: 'Mellisa');
+    _usernameController = TextEditingController();
     _phoneController = TextEditingController(text: '+91 9876543210');
     _genderController = TextEditingController(text: 'Female');
     _addressController = TextEditingController(text: 'Pune, India');
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final currentUser = _authService.currentUser;
+      if (currentUser != null) {
+        final userData = await _authService.getUserData(currentUser.uid);
+        if (userData != null) {
+          setState(() {
+            _currentUser = UserModel.fromFirestore(userData, currentUser.uid);
+            _nameController.text = _currentUser!.name;
+            _emailController.text = _currentUser!.email;
+            _usernameController.text = _currentUser!.name.split(' ').first; // Use first name as username
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _errorMessage = 'Failed to load user data';
+            _isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'No user logged in';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading user data: $e';
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -42,6 +81,58 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _emailController.dispose();
     _dobController.dispose();
     super.dispose();
+  }
+
+  Future<void> _saveProfileChanges() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      final currentUser = _authService.currentUser;
+      if (currentUser != null && _currentUser != null) {
+        // Update user data in Firestore
+        await _authService.updateUserData(currentUser.uid, {
+          'name': _nameController.text.trim(),
+          'email': _emailController.text.trim(),
+        });
+
+        // Update display name in Firebase Auth
+        await currentUser.updateDisplayName(_nameController.text.trim());
+
+        // Update local user model
+        setState(() {
+          _currentUser = _currentUser!.copyWith(
+            name: _nameController.text.trim(),
+            email: _emailController.text.trim(),
+          );
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Profile updated successfully!',
+                style: GoogleFonts.poppins(),
+              ),
+              backgroundColor: const Color(0xFF4FC3F7),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error updating profile: $e',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   // Future<void> _pickImage() async {
@@ -69,7 +160,72 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         centerTitle: true,
       ),
-      body: Container(
+      body: _isLoading
+          ? Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFF050A18),
+                    Color(0xFF0B1123),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFF4FC3F7),
+                ),
+              ),
+            )
+          : _errorMessage != null
+              ? Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFF050A18),
+                        Color(0xFF0B1123),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: Colors.red[300],
+                          size: 64,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _errorMessage!,
+                          style: GoogleFonts.poppins(
+                            color: Colors.red[300],
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _loadUserData,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF4FC3F7),
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text('Retry', style: GoogleFonts.poppins()),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
@@ -203,14 +359,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                             elevation: 2,
                           ),
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Profile changes saved!'),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                          },
+                          onPressed: _saveProfileChanges,
                           child: const Text(
                             'Save changes',
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
