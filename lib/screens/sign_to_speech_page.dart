@@ -1,8 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:camera/camera.dart';
 
-class SignToSpeechPage extends StatelessWidget {
+class SignToSpeechPage extends StatefulWidget {
   const SignToSpeechPage({Key? key}) : super(key: key);
+
+  @override
+  State<SignToSpeechPage> createState() => _SignToSpeechPageState();
+}
+
+class _SignToSpeechPageState extends State<SignToSpeechPage> {
+  CameraController? _cameraController;
+  List<CameraDescription>? _cameras;
+  bool _isCameraInitialized = false;
+  bool _isCameraOn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initCameras();
+  }
+
+  Future<void> _initCameras() async {
+    try {
+      _cameras = await availableCameras();
+    } catch (e) {
+      // Handle error if needed
+    }
+  }
+
+  Future<void> _toggleCamera() async {
+    if (_isCameraOn) {
+      await _stopCamera();
+    } else {
+      await _startCamera();
+    }
+    setState(() {
+      _isCameraOn = !_isCameraOn;
+    });
+  }
+
+  Future<void> _startCamera() async {
+    if (_cameras == null || _cameras!.isEmpty) return;
+    _cameraController = CameraController(
+      _cameras![0],
+      ResolutionPreset.medium,
+      enableAudio: false,
+    );
+    try {
+      await _cameraController!.initialize();
+      setState(() {
+        _isCameraInitialized = true;
+      });
+    } catch (e) {
+      // Handle error if needed
+    }
+  }
+
+  Future<void> _stopCamera() async {
+    if (_cameraController != null) {
+      await _cameraController!.dispose();
+      _cameraController = null;
+      setState(() {
+        _isCameraInitialized = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _stopCamera();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +125,8 @@ class SignToSpeechPage extends StatelessWidget {
                       ),
                     ),
                     icon: Image.asset('assets/icons/camera.png', width: 28, height: 28, color: Colors.white),
-                    label: const Text('Start Webcam'),
-                    onPressed: () {},
+                    label: Text(_isCameraOn ? 'Stop Webcam' : 'Start Webcam'),
+                    onPressed: _toggleCamera,
                   ),
                   const SizedBox(height: 32),
                   // Webcam Preview Box
@@ -70,14 +139,22 @@ class SignToSpeechPage extends StatelessWidget {
                       border: Border.all(color: Color(0xFF108EC2), width: 2),
                     ),
                     alignment: Alignment.center,
-                    child: const Text(
-                      'Webcam preview will appear here',
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 18,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
+                    child: _isCameraOn && _isCameraInitialized && _cameraController != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: AspectRatio(
+                              aspectRatio: _cameraController!.value.aspectRatio,
+                              child: CameraPreview(_cameraController!),
+                            ),
+                          )
+                        : const Text(
+                            'Webcam preview will appear here',
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 18,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
                   ),
                   const SizedBox(height: 32),
                   // Message Box
@@ -112,7 +189,7 @@ class SignToSpeechPage extends StatelessWidget {
                           width: double.infinity,
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.10),
+                            color: const Color(0xFF108EC2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Text(
