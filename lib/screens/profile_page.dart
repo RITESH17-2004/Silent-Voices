@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
+// import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
+import 'package:google_fonts/google_fonts.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final String name;
@@ -29,7 +30,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _nameController = TextEditingController(text: widget.name);
     _emailController = TextEditingController(text: widget.email);
     _dobController = TextEditingController(text: '23/05/1995');
-    _usernameController = TextEditingController(text: 'mansi_sabale');
+    _usernameController = TextEditingController(text: 'Mellisa');
     _phoneController = TextEditingController(text: '+91 9876543210');
     _genderController = TextEditingController(text: 'Female');
     _addressController = TextEditingController(text: 'Pune, India');
@@ -43,38 +44,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null && result.files.single.bytes != null) {
-      setState(() {
-        _imageBytes = result.files.single.bytes;
-      });
-    }
-  }
+  // Future<void> _pickImage() async {
+  //   final result = await FilePicker.platform.pickFiles(type: FileType.image);
+  //   if (result != null && result.files.single.bytes != null) {
+  //     setState(() {
+  //       _imageBytes = result.files.single.bytes;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF0C0F1E),
         elevation: 0,
-        title: ShaderMask(
-          shaderCallback: (Rect bounds) {
-            return const LinearGradient(
-              colors: [Color(0xFF2196F3), Color(0xFF00B8FF)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ).createShader(bounds);
-          },
-          child: const Text(
-            'User Profile',
-            style: TextStyle(
-              color: Colors.white, // This will be masked by the shader
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-              letterSpacing: 0.5,
-            ),
+        title: Text(
+          'Profile',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
@@ -99,7 +89,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 32), // reduced gap above avatar
+                  const SizedBox(height: 55), // reduced gap above avatar
                   Center(
                     child: Stack(
                       alignment: Alignment.bottomRight,
@@ -119,8 +109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
-                                  blurRadius: 4,
+                                  color: Colors.black.withOpacity(0.15),blurRadius: 4,
                                 ),
                               ],
                             ),
@@ -130,7 +119,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 width: 28,
                                 height: 28,
                               ),
-                              onPressed: _pickImage,
+                              onPressed: (){
+                                // _pickImage();
+                              },
                             ),
                           ),
                         ),

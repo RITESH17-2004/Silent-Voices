@@ -560,7 +560,7 @@ class _AboutSectionState extends State<AboutSection> with SingleTickerProviderSt
 }
 
 const List<String> _aboutParagraphs = [
-  "Silent Voices is an AI-powered mobile application designed to bridge the communication gap between the hearing and the deaf or hard-of-hearing community. It provides a seamless way to convert speech into sign language and sign language into text — in real time.",
+  "Silent Voices is a mobile application designed to bridge the communication gap between the hearing and the deaf or hard-of-hearing community. It provides a seamless way to convert speech into sign language and sign language into text — in real time.",
   "Unlike traditional accessibility tools that focus only on interpreting signs, Silent Voices flips the communication model by empowering hearing individuals to speak in signs using a friendly 3D avatar. This allows for inclusive, two-way conversations where both parties feel understood.",
   "The app supports multilingual speech input — including English, Hindi, and Marathi — and automatically translates it into Indian Sign Language (ISL) or American Sign Language (ASL). The inclusion of Natural Language Processing ensures that phrases are translated meaningfully rather than literally.",
   "Users can also use sign language gestures via camera input, which are recognized and converted into readable text. This makes Silent Voices an excellent communication bridge, especially in classrooms, hospitals, public offices, and even everyday conversations.",

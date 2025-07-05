@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-enum AppLanguage { english, hindi, spanish, marathi }
+enum AppLanguage { english, hindi, marathi }
 
 const Map<AppLanguage, String> kTaglines = {
   AppLanguage.english: 'Talk with Your Heart. Be Understood in Signs.',
   AppLanguage.hindi: 'अपने दिल से बोलो। संकेतों में समझा जाए।',
-  AppLanguage.spanish: 'Habla con tu corazón. Sé entendido en señas.',
   AppLanguage.marathi: 'मनापासून बोला. संकेतांमध्ये समजले जाईल.',
 };
 
@@ -39,6 +38,7 @@ class _LandingPageState extends State<LandingPage> {
                 child: Lottie.asset('assets/animations/globe.json'),
               ),
               tooltip: 'Change Language',
+              color: Colors.black,
               onSelected: (AppLanguage lang) {
                 setState(() {
                   _selectedLanguage = lang;
@@ -47,19 +47,15 @@ class _LandingPageState extends State<LandingPage> {
               itemBuilder: (context) => [
                 const PopupMenuItem(
                   value: AppLanguage.english,
-                  child: Text('English'),
+                  child: Text('English',style: TextStyle(color: Colors.white)),
                 ),
                 const PopupMenuItem(
                   value: AppLanguage.hindi,
-                  child: Text('Hindi'),
-                ),
-                const PopupMenuItem(
-                  value: AppLanguage.spanish,
-                  child: Text('Spanish'),
+                  child: Text('Hindi',style: TextStyle(color: Colors.white)),
                 ),
                 const PopupMenuItem(
                   value: AppLanguage.marathi,
-                  child: Text('Marathi'),
+                  child: Text('Marathi',style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -83,33 +79,6 @@ class _LandingPageState extends State<LandingPage> {
               color: Colors.black.withOpacity(0.5),
             ),
           ),
-
-          // Logo and App Name at Top Left
-          // SafeArea(
-          //   child: Align(
-          //     alignment: Alignment.topLeft,
-          //     child: Padding(
-          //       padding: const EdgeInsets.only(left: 0.0, top: 12.0),
-          //       child: Row(
-          //         mainAxisSize: MainAxisSize.min,
-          //         crossAxisAlignment: CrossAxisAlignment.center,
-          //         children: [
-          //           Image.asset('assets/icons/logo.png', height: 50),
-          //           ShaderMask(
-          //             shaderCallback: (bounds) => const LinearGradient(
-          //               colors: [Colors.teal, Colors.blue],
-          //             ).createShader(bounds),
-          //             child: const Text(
-          //               'Silent Voices',
-          //               style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-          // ),
-
           // Page Content
           Center(
             child: Padding(
@@ -156,37 +125,8 @@ class _LandingPageState extends State<LandingPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 40),
-                        // Get Started Button
-                        // if (widget.onGetStarted != null)
-                        //   Center(
-                        //     child: SizedBox(
-                        //       width: 320,
-                        //       child: GestureDetector(
-                        //         onTap: widget.onGetStarted,
-                        //         child: Container(
-                        //           alignment: Alignment.center,
-                        //           padding: const EdgeInsets.symmetric(vertical: 16),
-                        //           decoration: const BoxDecoration(
-                        //             gradient: LinearGradient(
-                        //               colors: [Color(0xFF43E97B), Color(0xFF38F9D7)],
-                        //               begin: Alignment.centerLeft,
-                        //               end: Alignment.centerRight,
-                        //             ),
-                        //             borderRadius: BorderRadius.all(Radius.circular(16)),
-                        //           ),
-                        //           child: const Text(
-                        //             'Get Started',
-                        //             style: TextStyle(
-                        //               fontSize: 20,
-                        //               fontWeight: FontWeight.w600,
-                        //               color: Colors.white,
-                        //             ),
-                        //           ),
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ),
+                        const SizedBox(height: 150),
+                        
                         const SizedBox(height: 16),
                         Center(
                           child: SizedBox(
