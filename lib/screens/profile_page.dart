@@ -151,6 +151,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0C0F1E),
         elevation: 0,
+        leading: IconButton(
+          icon: Image.asset(
+            'assets/icons/arrow.png',
+            width: 28,
+            height: 28,
+            color: Colors.white, // Ensures it matches the theme
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         title: Text(
           'Profile',
           style: GoogleFonts.poppins(

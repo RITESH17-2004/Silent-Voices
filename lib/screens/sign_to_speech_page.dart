@@ -77,9 +77,6 @@ class _SignToSpeechPageState extends State<SignToSpeechPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final containerWidth = screenWidth * 0.85;
-    final webcamBoxHeight = screenHeight * 0.25;
-    final buttonPadding = EdgeInsets.symmetric(horizontal: screenWidth * 0.08, vertical: 18);
     return Scaffold(
       body: Stack(
         children: [
@@ -89,6 +86,24 @@ class _SignToSpeechPageState extends State<SignToSpeechPage> {
               'assets/background/bg.png',
               fit: BoxFit.cover,
             ),
+          ),
+          // Webcam preview fills the screen
+          Positioned.fill(
+            child: _isCameraOn && _isCameraInitialized && _cameraController != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.zero,
+                    child: CameraPreview(_cameraController!),
+                  )
+                : Center(
+                    child: Text(
+                      'Webcam preview will appear here',
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 22,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ),
           ),
           // Globe animation in top-right
           Positioned(
@@ -103,63 +118,43 @@ class _SignToSpeechPageState extends State<SignToSpeechPage> {
               ),
             ),
           ),
-          // Main content
-          Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Webcam button
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF108EC2),
-                      foregroundColor: Colors.white,
-                      padding: buttonPadding,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.1,
-                      ),
-                    ),
-                    icon: Image.asset('assets/icons/camera.png', width: 28, height: 28, color: Colors.white),
-                    label: Text(_isCameraOn ? 'Stop Webcam' : 'Start Webcam'),
-                    onPressed: _toggleCamera,
+          // Start Webcam button at the top center
+          Positioned(
+            top: 40,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF108EC2),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08, vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                  const SizedBox(height: 32),
-                  // Webcam Preview Box
-                  Container(
-                    width: containerWidth,
-                    height: webcamBoxHeight,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.10),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Color(0xFF108EC2), width: 2),
-                    ),
-                    alignment: Alignment.center,
-                    child: _isCameraOn && _isCameraInitialized && _cameraController != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: AspectRatio(
-                              aspectRatio: _cameraController!.value.aspectRatio,
-                              child: CameraPreview(_cameraController!),
-                            ),
-                          )
-                        : const Text(
-                            'Webcam preview will appear here',
-                            style: TextStyle(
-                              color: Colors.white54,
-                              fontSize: 18,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
+                  textStyle: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.1,
                   ),
-                  const SizedBox(height: 32),
-                  // Message Box
-                  Container(
-                    width: containerWidth,
+                ),
+                icon: Image.asset('assets/icons/camera.png', width: 28, height: 28, color: Colors.white),
+                label: Text(_isCameraOn ? 'Stop Webcam' : 'Start Webcam'),
+                onPressed: _toggleCamera,
+              ),
+            ),
+          ),
+          // Message Box fixed at the bottom
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16, left: 24, right: 24),
+                  child: Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.15),
@@ -168,6 +163,7 @@ class _SignToSpeechPageState extends State<SignToSpeechPage> {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Row(
                           children: [
@@ -205,21 +201,32 @@ class _SignToSpeechPageState extends State<SignToSpeechPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
-                  // Headphones Icon and Listen to Audio
-                  Image.asset('assets/icons/headphone.png', width: 32, height: 32, color: Colors.white),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Listen to Audio',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 1.1,
+                ),
+                // Headphone button below the message box
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      // Add your audio playback logic here
+                      print('Headphone icon tapped - play audio');
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF108EC2),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: Image.asset(
+                        'assets/icons/headphone.png',
+                        width: 28,
+                        height: 28,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 16),
+              ],
             ),
           ),
         ],
