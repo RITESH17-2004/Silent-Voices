@@ -253,6 +253,7 @@ def prediction_loop():
     print("🛑 Stopping preview...")
     camera.release()
     cv2.destroyAllWindows()
+    camera = None
 
 
 @app.route("/start", methods=["GET"])
@@ -277,6 +278,12 @@ def reset():
     print("🔁 Queue reset!", flush=True)
     return {'status': 'reset'}
 
+# @app.route('/stop', methods=['POST'])
+# def stop_prediction():
+#     global running
+#     running = False
+#     print("🛑 Prediction stopped by Flutter")
+#     return {'status': 'stopped'}
 @app.route('/stop', methods=['POST'])
 def stop_prediction():
     global running

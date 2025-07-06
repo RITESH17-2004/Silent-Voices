@@ -33,6 +33,10 @@ migrate_working_dir/
 .pub/
 /build/
 
+
+asl_env/
+backend/signtospeech/asl_env/
+
 # Symbolication related
 app.*.symbols
 
