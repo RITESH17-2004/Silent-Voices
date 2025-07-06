@@ -1,0 +1,16 @@
+# Core libraries
+numpy==1.18.5
+opencv-python==4.5.3.56
+
+# Deep learning
+tensorflow==2.3.0
+keras==2.4.3
+
+# MediaPipe for pose/hand/face keypoint extraction
+mediapipe==0.10.11
+
+# Utilities
+protobuf==3.20.3
+absl-py==0.11.0
+six==1.15.0
+pandas==1.1.5
